@@ -15,14 +15,60 @@ import java.util.Scanner;
 public class M2RetoAlvaroGarciaApplication implements CommandLineRunner {
 
 	@Autowired
-	TeatroRepository TeatroRepository;
+	TeatroRepository teatroRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(M2RetoAlvaroGarciaApplication.class, args);
+		Scanner scanner = new Scanner(System.in);
+		//Variable para el funcionamiento del programa principal.
+		Integer option = scanner.nextInt();
+		//Mientras no introduzcamos el 0. El programa seguirá ejecutándose.
+		while (option!=0) {
+			mainMenu();
+			try {
+				if (option == 0) {
+					System.out.println("Hasta luego !!");
+					break;
+
+					//Aquí llamaremos a las funciones definidas previamente.
+					//Acorde a la opción introducida por el usuario/a. El programa irá llamando a las funciones.
+				} else if (option == 1){
+					viewTheaters();
+
+				} else if (option == 2) {
+					addTheater();
+
+				} else if (option == 3) {
+					findById();
+
+				} else if (option == 4) {
+					updateTheater();
+
+				} else if (option == 5) {
+					deleteById();
+
+				} else if (option == 6){
+					delete();
+
+				} else if (option == 7){
+					total();
+
+				} else if (option == 8){
+					findByName();
+
+				} else if (option == 9){
+					findByLocation();
+				}
+
+			} catch(Exception e){
+				e.printStackTrace();
+			}
+		}
 
 	}
 
 	public static void mainMenu(){
+		//Menu principal
 		System.out.println("==============================================================");
 		System.out.println("Bienvenido al CRM de gestión de teatros, que desea realizar ? ");
 		System.out.println("==============================================================");
@@ -38,7 +84,9 @@ public class M2RetoAlvaroGarciaApplication implements CommandLineRunner {
 		System.out.println("9) Buscar por localidad");
 	}
 
-	public void viewTheaters(){
+	//Funcionalidad 1. Visualizar teatros existentes.
+	public static void viewTheaters(){
+		//Simplemente mostrar teatros si exiten previamente.
 		List<Teatro> theaterList = new ArrayList<>();
 		if (theaterList.isEmpty()){
 			System.out.println("No hay teatros");
@@ -46,7 +94,9 @@ public class M2RetoAlvaroGarciaApplication implements CommandLineRunner {
 			System.out.println(theaterList);
 	}
 
-	public void addTheater(){
+	//Funcionalidad 2. Agregar un teatro a la BBDD
+	public static void addTheater(){
+		//Simplemente, el usuario deberá introducir los datos del teatro a añadir.
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Introduce el nombre del teatro: ");
 		String nombre = scanner.next();
@@ -62,11 +112,14 @@ public class M2RetoAlvaroGarciaApplication implements CommandLineRunner {
 		System.out.println("Teatro añadido con éxito");
 	}
 
-	public void findById(){
+	//Funcionalidad 3. Filtrar por id
+	public static void findById(){
+		//El usuario deberá introducir un id por teclado.
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Introduce el id del teatro a buscar.");
 		Long id = scanner.nextLong();
 		Optional<Teatro> theatersOptional = TeatroRepository.findById(id);
+		//Si el id consta en la BBDD lo mostrará, en cambio, si no existe mostrará un mensaje de error.
 		if (theatersOptional.isPresent()){
 			Teatro theaterList = theatersOptional.get();
 			System.out.println(theaterList);
@@ -75,12 +128,57 @@ public class M2RetoAlvaroGarciaApplication implements CommandLineRunner {
 		}
 	}
 
-	public void deleteById(){
+	//Funcionalidad 4. Modificar un teatro.
+	public static void updateTheater(){
+		Scanner scanner = new Scanner(System.in);
+		System.out.println("Introduce el id del teatro que quieres modificar: ");
+		Long id = scanner.nextLong();
+		scanner.nextLine();
+		Optional<Teatro> teatroOptional = TeatroRepository.findById(id);
+
+		//Si el id no pertenece a ningún teatro, ERROR.
+		if (teatroOptional.isEmpty()){
+			System.out.println("El teatro con el id solicitado NO existe.");
+		}
+		Teatro theater = teatroOptional.get();
+
+
+		//Nuevos datos
+
+		//Nombre
+		System.out.println("Introduce nuevo nombre: (" + theater.getNombre() + ")");
+		String nombre = scanner.nextLine();
+		scanner.nextLine();
+		theater.setNombre(nombre);
+
+		//Localidad
+		System.out.println("Introduce la localidad(actual): (" + theater.getLocalidad() + ")");
+		String localidad = scanner.nextLine();
+		scanner.nextLine();
+		theater.setLocalidad(localidad);
+
+		//Año (si ha habido alguna reforma integral)
+		System.out.println("Introduce el año (reforma): (" + theater.getYear() + ")");
+		Integer year = scanner.nextInt();
+		scanner.nextLine();
+		theater.setYear(year);
+
+		//Guardar los datos introducidos en la BBDD.
+		TeatroRepository.save(theater);
+		System.out.println("Cambios guardados satisfactoriamente. ");
+	}
+
+	//Funcionalidad 5. Borrar por Id
+	public static void deleteById(){
+		//El usuario deberá introducir un id por teclado.
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Introduce el id del teatro a eliminar");
 		Long id = scanner.nextLong();
 		boolean existe = TeatroRepository.existsById(id);
 
+		//Si no existe, enviaremos un mensaje de error.
+		//En cambio si existe borrará el teatro, por id solicitado.
+		//Y enviará un mensaje de confirmación de la supresión del id en cuestión.
 		if (!existe) {
 			System.out.println("ID inexistente");
 		} else {
@@ -89,45 +187,58 @@ public class M2RetoAlvaroGarciaApplication implements CommandLineRunner {
 		}
 	}
 
-	public void delete(){
+	//Funcionalidad 6. Vaciar la BBDD.
+	public static void delete(){
+		//Preguntamos al usuario si queremos proceder al barrido de la BBDD
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Estás seguro/a de borrar los registros ? ");
 		Boolean confirm = scanner.nextBoolean();
 
-		//Si no queremos borrar nada, printeará un mensaje de error. Dado que el continue solo funciona cuando hay un bucle
+		//Si no queremos borrar nada, printeará un mensaje de error.
+		//Dado que el continue solo funciona cuando hay un bucle while. He tenido que añadir un sout.
 		if (!confirm) {
 			System.out.println("Error al borrar");
 		}
 
+		//Si la respuesta a la pregunta es un sí. Borrará todos los registros.
 		TeatroRepository.deleteAll();
 		System.out.println("Registros borrados correctamente");
 
 	}
 
-	public Long total() {
+	//Funcionalidad 7. Obtener el total de registros almacenados en la BBDD
+	public static Long total() {
+		//Aquí retornamos el total de registros almacenados en la BBDD
 		return TeatroRepository.count();
 	}
 
-	public void findByName(){
+	//Funcionalidad 8. Filtrar por nombre de teatro, para comprobar su existencia en la BBDD
+	public static void findByName(){
+		//Pediremos al usuario el nombre de un teatro para hacer la búsqueda.
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Introduce el nombre del teatro a buscar: ");
 		String nombre = scanner.next();
 		List<Teatro> theaterList = TeatroRepository.findByName(nombre);
+		//For-each para recorrer la BBDD.
 		for (Teatro teatro: theaterList){
 			System.out.println(teatro);
 		}
 		System.out.println(theaterList);
 	}
 
-	public void findByLocation(){
+	//Funcionalidad 9. Permite buscar por localidad.
+	public static void findByLocation(){
+		//Pediremos al usuario que introduzca la localidad.
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Introduce la localidad: ");
 		String localidad = scanner.next();
 
+		//También le pediremos el nombre del teatro.
 		System.out.println("Introduce el nombre teatro: ");
 		String nombre = scanner.next();
 
 		List<Teatro> theaterList = TeatroRepository.findByLocationAndName(localidad, nombre);
+		//Bucle for-each encargado de recorrer la BBDD en busca de los parámetros pasado por teclado.
 		for (Teatro teatro : theaterList){
 			System.out.println(teatro);
 		}
@@ -138,47 +249,6 @@ public class M2RetoAlvaroGarciaApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
-		Scanner scanner = new Scanner(System.in);
-		Integer option = scanner.nextInt();
-
-		while (option!=0) {
-			mainMenu();
-			try {
-				if (option == 0) {
-					System.out.println("Hasta luego !!");
-					break;
-				} else if (option == 1){
-					viewTheaters();
-
-				} else if (option == 2) {
-					addTheater();
-
-				} else if (option == 3) {
-					findById();
-
-				} else if (option == 4) {
-
-
-				} else if (option == 5) {
-					deleteById();
-
-				} else if (option == 6){
-					delete();
-
-				} else if (option == 7){
-					total();
-
-				} else if (option == 8){
-					findByName();
-
-				} else if (option == 9){
-
-				}
-
-			} catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-
 	}
+
 }
