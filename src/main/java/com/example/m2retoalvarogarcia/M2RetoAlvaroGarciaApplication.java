@@ -29,7 +29,7 @@ public class M2RetoAlvaroGarciaApplication implements CommandLineRunner {
 		//Variable para el funcionamiento del programa principal.
 		Integer option = scanner.nextInt();
 		//Mientras no introduzcamos el 0. El programa seguirá ejecutándose.
-		while (option!=0) {
+		while (true) {
 			mainMenu();
 			try {
 				if (option == 0) {
@@ -175,7 +175,7 @@ public class M2RetoAlvaroGarciaApplication implements CommandLineRunner {
 		}
 
 		//Funcionalidad 5. Borrar por Id
-		public static void deleteById(){
+		public void deleteById(){
 			//El usuario deberá introducir un id por teclado.
 			Scanner scanner = new Scanner(System.in);
 			System.out.println("Introduce el id del teatro a eliminar");
@@ -224,7 +224,7 @@ public class M2RetoAlvaroGarciaApplication implements CommandLineRunner {
 			Scanner scanner = new Scanner(System.in);
 			System.out.println("Introduce el nombre del teatro a buscar: ");
 			String nombre = scanner.next();
-			List<Teatro> theaterList = teatroRepository.findByName(nombre);
+			List<Teatro> theaterList = teatroRepository.findByNombre(nombre);
 			//For-each para recorrer la BBDD.
 			for (Teatro teatro: theaterList){
 				System.out.println(teatro);
@@ -243,7 +243,7 @@ public class M2RetoAlvaroGarciaApplication implements CommandLineRunner {
 			System.out.println("Introduce el nombre teatro: ");
 			String nombre = scanner.next();
 
-			List<Teatro> theaterList = teatroRepository.findByLocationAndName(localidad, nombre);
+			List<Teatro> theaterList = teatroRepository.findByLocalidadAndNombre(localidad, nombre);
 			//Bucle for-each encargado de recorrer la BBDD en busca de los parámetros pasado por teclado.
 			for (Teatro teatro : theaterList){
 				System.out.println(teatro);

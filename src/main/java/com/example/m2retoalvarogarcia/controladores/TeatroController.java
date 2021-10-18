@@ -36,7 +36,7 @@ public class TeatroController {
     //2. Data retrieval (Retrieve)
     @GetMapping("/theaters/theater{nombre}")
     public List<Teatro> findByName(@PathVariable String teatro){
-        return repository.findByName(teatro);
+        return repository.findByNombre(teatro);
     }
 
 
